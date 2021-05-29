@@ -1,18 +1,47 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-# file: bannerINSA.py
+# file: bannerInsalan.py
 # author: Nathan PERIER
-# created: 2021/03/24
-# last modified: 2021/05/06
-# github page: https://github.com/NathanPERIER/BannerINSA
+# created: 2021/05/28
+# last modified: 2021/05/29
+# github page: https://github.com/NathanPERIER/BannerInsalan
 
 import sys
 import re
 
 
+def properCentre(s, lenght, char=' ') : 
+	s = str(s)
+	char = char[0]
+	residual_len = lenght - len(s)
+	if residual_len > 0 : 
+		return char * (residual_len // 2) + s + char * (residual_len - residual_len // 2)
+	return None
+
+
+# https://www.geeksforgeeks.org/converting-decimal-number-lying-between-1-to-3999-to-roman-numerals/
+def numberToRoman(number) :
+	res = ''
+	if number > 3999 or number < 1 : 
+		return None
+	num = [1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000]
+	sym = ["I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"]
+	i = 12
+	while number :
+		div = number // num[i]
+		number %= num[i]
+		while div :
+			res += sym[i]
+			div -= 1
+		i -= 1
+	return res
+
+
+
 if len(sys.argv) > 1 :
 	if sys.argv[1] in ['-h', '--help'] :
-		print(f"usage : {sys.argv[0]} [--mini] [-t text] [--center | --left | --right] [-n num] [-c colour] [--fill] [--bar]")
+		# print(f"usage : {sys.argv[0]} [--mini] [-t text] [--center | --left | --right] [-n num] [-c colour] [--fill] [--bar]")
+		print(f"usage : {sys.argv[0]} [--mini] [-n num] [-c colour] [--fill] [--bar]")
 		exit(0)
 
 i = 1
@@ -21,11 +50,11 @@ i = 1
 prefix = ['', '', '', '', '']
 maxlen = 54
 if i < len(sys.argv) and sys.argv[i] == '--mini' :
-	prefix[0] = ' ███    ███ ██ ███    ██'
-	prefix[1] = ' ████  ████ ██ ████   ██'
-	prefix[2] = ' ██ ████ ██ ██ ██ ██  ██'
-	prefix[3] = ' ██  ██  ██ ██ ██  ██ ██'
-	prefix[4] = ' ██      ██ ██ ██   ████'
+	prefix[0] = ' ███▖  ▗███ ██ ███▖   ██'
+	prefix[1] = ' ████▖▗████ ██ ████▖  ██'
+	prefix[2] = ' ██▝████▘██ ██ ██▝██▖ ██'
+	prefix[3] = ' ██ ▝██▘ ██ ██ ██ ▝██▖██'
+	prefix[4] = ' ██      ██ ██ ██  ▝████'
 	i += 1
 	maxlen += 24
 
@@ -41,6 +70,16 @@ if i < len(sys.argv) :
 	if sys.argv[i] in ['--center', '--left', '--right'] :
 		align = sys.argv[i][2]
 		i += 1
+
+
+num = None
+if i+1 < len(sys.argv) and sys.argv[i] == '-n' :
+	num = sys.argv[i+1]
+	if re.match(r'[0-9]+', num) is not None : 
+		num = numberToRoman(int(num))
+	elif re.match(r'[IVXLCDM]+', num) is None :
+		num = None
+	i += 2
 
 
 colour_codes = {
@@ -71,12 +110,6 @@ text_col = f"[1;3{col_code}m" if palette == 2 else f"[38;5;{col_code}m"
 reset_col = '[0m'
 
 
-num = '0'
-if i+1 < len(sys.argv) and sys.argv[i] == '-n' :
-	num = sys.argv[i+1]
-	i += 2
-
-
 fill = False
 bars_col = ''
 if i < len(sys.argv) and sys.argv[i] == '--fill' :
@@ -104,66 +137,31 @@ if bar :
 
 
 # https://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=INSALAN
-#
-#  ██ ███    ██ ███████  █████  ██       █████  ███    ██ 
-#  ██ ████   ██ ██      ██   ██ ██      ██   ██ ████   ██ 
-#  ██ ██ ██  ██ ███████ ███████ ██      ███████ ██ ██  ██ 
-#  ██ ██  ██ ██      ██ ██   ██ ██      ██   ██ ██  ██ ██ 
-#  ██ ██   ████ ███████ ██   ██ ███████ ██   ██ ██   ████ 
-
-
 if fill :
 	bar_up = '▄' * (maxlen+2)
 	print(f" {bars_col}{bar_up}{reset_col}")
 else : 
 	print('')
-print(f" {prefix[0]} ██ ███    ██ ███████  █████  ██       █████  ███    ██ {reset_col}")
-print(f" {prefix[1]} ██ ████   ██ ██      ██   ██ ██      ██   ██ ████   ██ {reset_col}")
-print(f" {prefix[2]} ██ ██ ██  ██ ███████ ███████ ██      ███████ ██ ██  ██ {reset_col}")
-print(f" {prefix[3]} ██ ██  ██ ██      ██ ██   ██ ██      ██   ██ ██  ██ ██ {reset_col}")
-print(f" {prefix[4]} ██ ██   ████ ███████ ██   ██ ███████ ██   ██ ██   ████ {reset_col}")
+print(f" {prefix[0]} ██ ███▖   ██ ███████ ▗█████▖ ██      ▗█████▖ ███▖   ██ {reset_col}")
+print(f" {prefix[1]} ██ ████▖  ██ ██      ██   ██ ██      ██   ██ ████▖  ██ {reset_col}")
+print(f" {prefix[2]} ██ ██▝██▖ ██ ███████ ███████ ██      ███████ ██▝██▖ ██ {reset_col}")
+print(f" {prefix[3]} ██ ██ ▝██▖██      ██ ██   ██ ██      ██   ██ ██ ▝██▖██ {reset_col}")
+print(f" {prefix[4]} ██ ██  ▝████ ███████ ██   ██ ███████ ██   ██ ██  ▝████ {reset_col}")
 if bar : 
-	bar_middle = "╶" + "─" * (maxlen-2) + "╴"
+	if num is not None :
+		bar_middle = "╶" + properCentre(num, maxlen-2, '─') + "╴"
+	else : 
+		bar_middle = "╶" + "─" * (maxlen-2) + "╴"
+	print(f" {text_col} {bar_middle} {reset_col}")
+elif num is not None : 
+	bar_middle = properCentre(num, maxlen)
 	print(f" {text_col} {bar_middle} {reset_col}")
 if text != '' : 
 	pass
-if fill and not (bar and text == '') :
+if fill and not ((bar or num is not None) and text == '') :
 	bar_up = '▀' * (maxlen+2)
 	print(f" {bars_col}{bar_up}{reset_col}")
 else : 
 	print('')
 
-"""
-padding = ' ' * (maxlen - 16) + reset
-print(f" {text_col} 8888888 888b    888  .d8888b.  {tab_a[0]}8888b {corner_col} Y8888 ╻                  {padding}")
-print(f" {text_col}   888   8888b   888 d88P  Y88b {tab_a[1]}88888b {corner_col} Y888 ┃ INSTITUT NATIONAL{padding}")
-print(f" {text_col}   888   88888b  888 Y88b.      {tab_a[2]}888Y88b {corner_col} Y88 ┃ DES SCIENCES     {padding}")
-print(f" {text_col}   888   888Y88b 888  \"Y888b.   {tab_a[3]}888 Y88b {corner_col} Y8 ┃ APPLIQUÉES       {padding}")
-temp = padding
-padding = ' ' * (maxlen - len(insa) + 1) + reset
-print(f" {text_col}   888   888 Y88b888     \"Y88b. {tab_a[4]}888  Y88b {corner_col} Y ┃ {insa}{padding}")
-print(f" {text_col}   888   888  Y88888       \"888 {tab_a[5]}888   Y88b {corner_col}  ┃ {char_sep * maxlen} {reset}")
-padding = ' ' * (maxlen - len(text) + 1) + reset
-print(f" {text_col}   888   888   Y8888 Y88b  d88P {tab_a[6]}8888888888b {corner_col} ┃ {text}{padding}")
-padding = temp
-print(f" {text_col} 8888888 888    Y888  \"Y8888P\"  {tab_a[7]}888     Y88b {corner_col}╹                  {padding}")
-if len(subtitle) > 0 :
-	if bar :
-		padding = '╶' + '─' * (logo_len - 5) + '╴'
-	else :
-		padding = ' ' * (logo_len - 3)
-	print(f" {text_col} {padding} {reset}")
-	if align == 'r' : 
-		print(f" {text_col} {subtitle.rjust(logo_len - 3)} {reset}")
-	elif align == 'l' :
-		print(f" {text_col} {subtitle.ljust(logo_len - 3)} {reset}")
-	else :
-		left = (logo_len - 3 - len(subtitle)) // 2
-		right = logo_len - 3 - len(subtitle) - left
-		print(f" {text_col} {' ' * left + subtitle + ' ' * right} {reset}")
-if fill :
-	padding = '▀' * (maxlen - 16 + nb_a * 13) + reset
-	print(f" {bars_col}▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀{padding}")
-
-"""
 
