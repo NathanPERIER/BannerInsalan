@@ -41,20 +41,25 @@ def numberToRoman(number) :
 if len(sys.argv) > 1 :
 	if sys.argv[1] in ['-h', '--help'] :
 		# print(f"usage : {sys.argv[0]} [--mini] [-t text] [--center | --left | --right] [-n num] [-c colour] [--fill] [--bar]")
-		print(f"usage : {sys.argv[0]} [--mini] [-n num] [-c colour] [--fill] [--bar]")
+		print(f"usage : {sys.argv[0]} [--simple] [--mini] [-n num] [-c colour] [--fill] [--bar]")
 		exit(0)
 
 i = 1
 
 
+simple = (i < len(sys.argv) and sys.argv[i] == '--simple')
+if simple : 
+	i += 1
+
+
 prefix = ['', '', '', '', '']
 maxlen = 54
 if i < len(sys.argv) and sys.argv[i] == '--mini' :
-	prefix[0] = ' ███▖  ▗███ ██ ███▖   ██'
-	prefix[1] = ' ████▖▗████ ██ ████▖  ██'
-	prefix[2] = ' ██▝████▘██ ██ ██▝██▖ ██'
-	prefix[3] = ' ██ ▝██▘ ██ ██ ██ ▝██▖██'
-	prefix[4] = ' ██      ██ ██ ██  ▝████'
+	prefix[0] = ' ███▖  ▗███ ██ ███▖   ██' if not simple else ' ███    ███ ██ ███    ██'
+	prefix[1] = ' ████▖▗████ ██ ████▖  ██' if not simple else ' ████  ████ ██ ████   ██'
+	prefix[2] = ' ██▝████▘██ ██ ██▝██▖ ██' if not simple else ' ██ ████ ██ ██ ██ ██  ██'
+	prefix[3] = ' ██ ▝██▘ ██ ██ ██ ▝██▖██' if not simple else ' ██  ██  ██ ██ ██  ██ ██'
+	prefix[4] = ' ██      ██ ██ ██  ▝████' if not simple else ' ██      ██ ██ ██   ████'
 	i += 1
 	maxlen += 24
 
@@ -142,11 +147,18 @@ if fill :
 	print(f" {bars_col}{bar_up}{reset_col}")
 else : 
 	print('')
-print(f" {prefix[0]} ██ ███▖   ██ ███████ ▗█████▖ ██      ▗█████▖ ███▖   ██ {reset_col}")
-print(f" {prefix[1]} ██ ████▖  ██ ██      ██   ██ ██      ██   ██ ████▖  ██ {reset_col}")
-print(f" {prefix[2]} ██ ██▝██▖ ██ ███████ ███████ ██      ███████ ██▝██▖ ██ {reset_col}")
-print(f" {prefix[3]} ██ ██ ▝██▖██      ██ ██   ██ ██      ██   ██ ██ ▝██▖██ {reset_col}")
-print(f" {prefix[4]} ██ ██  ▝████ ███████ ██   ██ ███████ ██   ██ ██  ▝████ {reset_col}")
+if simple : 
+	print(f" {prefix[0]} ██ ███    ██ ███████  █████  ██       █████  ███    ██ {reset_col}")
+	print(f" {prefix[1]} ██ ████   ██ ██      ██   ██ ██      ██   ██ ████   ██ {reset_col}")
+	print(f" {prefix[2]} ██ ██ ██  ██ ███████ ███████ ██      ███████ ██ ██  ██ {reset_col}")
+	print(f" {prefix[3]} ██ ██  ██ ██      ██ ██   ██ ██      ██   ██ ██  ██ ██ {reset_col}")
+	print(f" {prefix[4]} ██ ██   ████ ███████ ██   ██ ███████ ██   ██ ██   ████ {reset_col}")
+else : 
+	print(f" {prefix[0]} ██ ███▖   ██ ███████ ▗█████▖ ██      ▗█████▖ ███▖   ██ {reset_col}")
+	print(f" {prefix[1]} ██ ████▖  ██ ██      ██   ██ ██      ██   ██ ████▖  ██ {reset_col}")
+	print(f" {prefix[2]} ██ ██▝██▖ ██ ███████ ███████ ██      ███████ ██▝██▖ ██ {reset_col}")
+	print(f" {prefix[3]} ██ ██ ▝██▖██      ██ ██   ██ ██      ██   ██ ██ ▝██▖██ {reset_col}")
+	print(f" {prefix[4]} ██ ██  ▝████ ███████ ██   ██ ███████ ██   ██ ██  ▝████ {reset_col}")
 if bar : 
 	if num is not None :
 		bar_middle = "╶" + properCentre(num, maxlen-2, '─') + "╴"
