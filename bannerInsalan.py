@@ -3,11 +3,14 @@
 # file: bannerInsalan.py
 # author: Nathan PERIER
 # created: 2021/05/28
-# last modified: 2021/05/29
+# last modified: 2021/06/06
 # github page: https://github.com/NathanPERIER/BannerInsalan
 
 import sys
 import re
+import time
+
+from text import textToBanner
 
 
 def properCentre(s, lenght, char=' ') : 
@@ -40,41 +43,65 @@ def numberToRoman(number) :
 
 if len(sys.argv) > 1 :
 	if sys.argv[1] in ['-h', '--help'] :
-		# print(f"usage : {sys.argv[0]} [--mini] [-t text] [--center | --left | --right] [-n num] [-c colour] [--fill] [--bar]")
-		print(f"usage : {sys.argv[0]} [--simple] [--mini] [-n num] [-c colour] [--fill] [--bar]")
+		print(f"usage : {sys.argv[0]} [--smooth] [--mini] [-n num] [-c colour] [--fill] [--bar] [--wallpaper]")
 		exit(0)
 
 i = 1
 
 
-simple = (i < len(sys.argv) and sys.argv[i] == '--simple')
-if simple : 
+smooth = (i < len(sys.argv) and sys.argv[i] == '--smooth')
+if smooth : 
 	i += 1
 
+banner_text = None
+if i < len(sys.argv) :
+	if sys.argv[i] == '--mini' :
+		banner_text = 'mininsalan'
+	elif sys.argv[i] == '--salad' :
+		banner_text = 'insalade'
+	elif sys.argv[i] == '--fog' :
+		banner_text = 'fogsalan'
+	elif sys.argv[i] == '--flang' :
+		banner_text = 'flang'
+	elif sys.argv[i] == '--hostname' :
+		import socket
+		banner_text = socket.gethostname()
+	elif sys.argv[i] == '--local-ip' :
+		import socket
+		try :
+			banner_text = socket.gethostbyname(socket.getfqdn())
+		except socket.gaierror : 
+			banner_text = socket.gethostbyname(socket.gethostname())
+		if banner_text.startswith("127.") :
+			try :
+				s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+				s.connect(('1.1.1.1', 1))
+				banner_text = s.getsockname()[0]
+			except OSError :
+				pass
+	elif sys.argv[i] == '--global-ip' :
+		import requests
+		try : 
+			response = requests.get('http://canihazip.com')
+			if response.ok :
+				print(response.text)
+				banner_text = response.text
+			else :
+				i += 1
+		except OSError :
+			i += 1
 
-prefix = ['', '', '', '', '']
-maxlen = 54
-if i < len(sys.argv) and sys.argv[i] == '--mini' :
-	prefix[0] = ' ███▖  ▗███ ██ ███▖   ██' if not simple else ' ███    ███ ██ ███    ██'
-	prefix[1] = ' ████▖▗████ ██ ████▖  ██' if not simple else ' ████  ████ ██ ████   ██'
-	prefix[2] = ' ██▝████▘██ ██ ██▝██▖ ██' if not simple else ' ██ ████ ██ ██ ██ ██  ██'
-	prefix[3] = ' ██ ▝██▘ ██ ██ ██ ▝██▖██' if not simple else ' ██  ██  ██ ██ ██  ██ ██'
-	prefix[4] = ' ██      ██ ██ ██  ▝████' if not simple else ' ██      ██ ██ ██   ████'
+if banner_text is not None :
 	i += 1
-	maxlen += 24
-
-if i+1 < len(sys.argv) and sys.argv[i] == '-t' : 
-	text = sys.argv[i+1]
-	i += 2
-else : 
-	text = ''
+else :
+	banner_text = 'insalan'
+banner = textToBanner(banner_text)
 
 
 align = 'c'
-if i < len(sys.argv) : 
-	if sys.argv[i] in ['--center', '--left', '--right'] :
-		align = sys.argv[i][2]
-		i += 1
+if i < len(sys.argv) and sys.argv[i] in ['--center', '--left', '--right'] :
+	align = sys.argv[i][2]
+	i += 1
 
 
 num = None
@@ -130,50 +157,65 @@ if i < len(sys.argv) and sys.argv[i] == '--fill' :
 	i += 1
 
 
-for j in range(len(prefix)) :
-	prefix[j] = text_col + prefix[j]
-
 
 bar = (i < len(sys.argv) and sys.argv[i] == '--bar')
 if bar :
 	i += 1
 
+mode = 'banner'
+if i < len(sys.argv) : 
+	if sys.argv[i] == '--wallpaper' :
+		mode = 'wallpaper'
 
 
+maxlen = len(banner[0])
+for i in range(len(banner)) :
+	banner[i] = f" {text_col} {banner[i]} {reset_col}"
 
-# https://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=INSALAN
 if fill :
 	bar_up = '▄' * (maxlen+2)
-	print(f" {bars_col}{bar_up}{reset_col}")
+	banner.insert(0, f" {bars_col}{bar_up}{reset_col}")
 else : 
-	print('')
-if simple : 
-	print(f" {prefix[0]} ██ ███    ██ ███████  █████  ██       █████  ███    ██ {reset_col}")
-	print(f" {prefix[1]} ██ ████   ██ ██      ██   ██ ██      ██   ██ ████   ██ {reset_col}")
-	print(f" {prefix[2]} ██ ██ ██  ██ ███████ ███████ ██      ███████ ██ ██  ██ {reset_col}")
-	print(f" {prefix[3]} ██ ██  ██ ██      ██ ██   ██ ██      ██   ██ ██  ██ ██ {reset_col}")
-	print(f" {prefix[4]} ██ ██   ████ ███████ ██   ██ ███████ ██   ██ ██   ████ {reset_col}")
-else : 
-	print(f" {prefix[0]} ██ ███▖   ██ ███████ ▗█████▖ ██      ▗█████▖ ███▖   ██ {reset_col}")
-	print(f" {prefix[1]} ██ ████▖  ██ ██      ██   ██ ██      ██   ██ ████▖  ██ {reset_col}")
-	print(f" {prefix[2]} ██ ██▝██▖ ██ ███████ ███████ ██      ███████ ██▝██▖ ██ {reset_col}")
-	print(f" {prefix[3]} ██ ██ ▝██▖██      ██ ██   ██ ██      ██   ██ ██ ▝██▖██ {reset_col}")
-	print(f" {prefix[4]} ██ ██  ▝████ ███████ ██   ██ ███████ ██   ██ ██  ▝████ {reset_col}")
+	banner.insert(0, ' ' * (maxlen+2))
 if bar : 
 	if num is not None :
 		bar_middle = "╶" + properCentre(num, maxlen-2, '─') + "╴"
 	else : 
 		bar_middle = "╶" + "─" * (maxlen-2) + "╴"
-	print(f" {text_col} {bar_middle} {reset_col}")
+	banner.append(f" {text_col} {bar_middle} {reset_col}")
 elif num is not None : 
 	bar_middle = properCentre(num, maxlen)
-	print(f" {text_col} {bar_middle} {reset_col}")
-if text != '' : 
-	pass
-if fill and not ((bar or num is not None) and text == '') :
+	banner.append(f" {text_col} {bar_middle} {reset_col}")
+if fill and not bar and num is None :
 	bar_up = '▀' * (maxlen+2)
-	print(f" {bars_col}{bar_up}{reset_col}")
+	banner.append(f" {bars_col}{bar_up}{reset_col}")
 else : 
-	print('')
+	banner.append(' ' * (maxlen+2))
+
+
+if mode == 'wallpaper' : 
+	import shutil
+	term_size = shutil.get_terminal_size((0,0))
+	if term_size.columns > 0 and term_size.lines > 0 :
+		x_off = (term_size.lines - len(banner)) // 2
+		y_off = (term_size.columns - len(banner[0])) // 2
+		fill = ' ' * term_size.columns
+		lfill = ' ' * y_off
+		rfill = ' ' * (term_size.columns - y_off - len(banner[0]) - 1)
+		screenprint = []
+		for i in range(x_off) : 
+			screenprint.append(fill)
+		for line in banner : 
+			screenprint.append(lfill + line + rfill)
+		for i in range(term_size.lines - x_off - len(banner)) : 
+			screenprint.append(fill)
+		print('\n'.join(screenprint), end='')
+		time.sleep(10)
+		exit(0)
+
+for line in banner : 
+	print(line)
+
+
 
 
