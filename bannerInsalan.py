@@ -3,7 +3,7 @@
 # file: bannerInsalan.py
 # author: Nathan PERIER
 # created: 2021/05/28
-# last modified: 2021/06/06
+# last modified: 2021/11/05
 # github page: https://github.com/NathanPERIER/BannerInsalan
 
 import sys
@@ -41,10 +41,9 @@ def numberToRoman(number) :
 
 
 
-if len(sys.argv) > 1 :
-	if sys.argv[1] in ['-h', '--help'] :
-		print(f"usage : {sys.argv[0]} [--smooth] [--mini] [-n num] [-c colour] [--fill] [--bar] [--wallpaper]")
-		exit(0)
+if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help'] :
+	print(f"usage : {sys.argv[0]} [--smooth] [--mini] [-n num] [-c colour] [--fill] [--bar] [--wallpaper]")
+	exit(0)
 
 i = 1
 
@@ -82,7 +81,7 @@ if i < len(sys.argv) :
 	elif sys.argv[i] == '--global-ip' :
 		import requests
 		try : 
-			response = requests.get('http://canihazip.com')
+			response = requests.get('http://ipinfo.io/ip')
 			if response.ok :
 				print(response.text)
 				banner_text = response.text
@@ -124,19 +123,18 @@ colour_codes = {
 	'cyan': 6, 
 	'white': 7
 }
+col_code = colour_codes['blue']
 palette = 2
 if i+1 < len(sys.argv) and sys.argv[i] == '-c' :
 	if sys.argv[i+1] in colour_codes : 
 		col_code = colour_codes[sys.argv[i+1]]
 	else : 
 		res = re.fullmatch(r'8bit-(\d{1,3})', sys.argv[i+1])
-		temp_col = int(res.group(1)) if res != None else 0
-		if temp_col > 0 and temp_col < 256 :
+		temp_col = int(res.group(1)) if res != None else -1
+		if temp_col >= 0 and temp_col < 256 :
 			col_code = temp_col
 			palette = 8
 	i += 2
-else : 
-	col_code = colour_codes['blue']
 
 text_col = f"[1;3{col_code}m" if palette == 2 else f"[38;5;{col_code}m"
 reset_col = '[0m'
@@ -195,6 +193,7 @@ else :
 
 if mode == 'wallpaper' : 
 	import shutil
+	from getkey import getkey
 	term_size = shutil.get_terminal_size((0,0))
 	if term_size.columns > 0 and term_size.lines > 0 :
 		x_off = (term_size.lines - len(banner)) // 2
@@ -210,7 +209,15 @@ if mode == 'wallpaper' :
 		for i in range(term_size.lines - x_off - len(banner)) : 
 			screenprint.append(fill)
 		print('\n'.join(screenprint), end='')
-		time.sleep(10)
+		try :
+			wait = True
+			while wait :
+				key_pressed = getkey(blocking=True)
+				if key_pressed == 'q' :
+					wait = False
+		except KeyboardInterrupt :
+			pass
+		print(f"\033[H\033[J", end='')
 		exit(0)
 
 for line in banner : 
